@@ -25,7 +25,6 @@
 #include "icinga/checkcommand.hpp"
 #include "icinga/eventcommand.hpp"
 #include "icinga/notificationcommand.hpp"
-#include <thread>
 
 namespace icinga
 {

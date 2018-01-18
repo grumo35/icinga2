@@ -22,6 +22,7 @@
 #include "base/serializer.hpp"
 #include "base/exception.hpp"
 #include <boost/thread/once.hpp>
+#include <thread>
 
 using namespace icinga;
 
