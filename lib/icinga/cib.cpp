@@ -20,6 +20,7 @@
 #include "icinga/cib.hpp"
 #include "icinga/host.hpp"
 #include "icinga/service.hpp"
+#include "icinga/clusterevents.hpp"
 #include "base/objectlock.hpp"
 #include "base/utility.hpp"
 #include "base/perfdatavalue.hpp"
