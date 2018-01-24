@@ -44,6 +44,7 @@ set(config_SOURCES
   configitembuilder.cpp configitembuilder.hpp
   expression.cpp expression.hpp
   objectrule.cpp objectrule.hpp
+  validatorrule.cpp validatorrule.hpp
   vmops.hpp
   ${FLEX_config_lexer_OUTPUTS} ${BISON_config_parser_OUTPUTS}
 )

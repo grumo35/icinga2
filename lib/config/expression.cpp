@@ -610,6 +610,67 @@ ExpressionResult WhileExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhin
 	return Empty;
 }
 
+ExpressionResult RequireExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const
+{
+	Value validatorName;
+
+	if (!frame.Locals->Get("validator", &validatorName))
+		BOOST_THROW_EXCEPTION(ScriptError("The 'require' keyword can only be used in validators.", m_DebugInfo));
+
+	ExpressionResult operand = m_Operand->Evaluate(frame);
+	CHECK_RESULT(operand);
+
+	if (!operand.GetValue().ToBool()) {
+		if (validatorName.IsEmpty())
+			BOOST_THROW_EXCEPTION(ValidationError(frame.Self, {}, "User-defined validator failed."));
+		else
+			BOOST_THROW_EXCEPTION(ValidationError(frame.Self, {}, "User-defined validator '" + validatorName + "' failed."));
+	}
+
+	return Empty;
+}
+
+ExpressionResult ValidatorExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const
+{
+	ExpressionResult name = m_Name->Evaluate(frame);
+	CHECK_RESULT(name);
+
+	std::set<Type::Ptr> targetTypes;
+
+	if (m_Targets) {
+		ExpressionResult targets = m_Targets->Evaluate(frame);
+		CHECK_RESULT(targets);
+
+
+		Object::Ptr otargets = targets.GetValue();
+
+		Array::Ptr arrTargets = dynamic_pointer_cast<Array>(otargets);
+
+		if (arrTargets) {
+			ObjectLock olock(arrTargets);
+
+			for (const Type::Ptr& target : arrTargets) {
+				if (!dynamic_cast<ConfigType *>(target.get()))
+					BOOST_THROW_EXCEPTION(ScriptError("The type '" + target->GetName() + "' is not valid for validator expressions.", m_DebugInfo));
+
+				targetTypes.insert(target);
+			}
+		} else {
+			Type::Ptr target = dynamic_pointer_cast<Type>(otargets);
+
+			if (!target)
+				BOOST_THROW_EXCEPTION(ScriptError("Invalid type specified.", m_DebugInfo));
+
+			if (!dynamic_cast<ConfigType *>(target.get()))
+				BOOST_THROW_EXCEPTION(ScriptError("The type '" + target->GetName() + "' is not valid for validator expressions.", m_DebugInfo));
+
+			targetTypes.insert(target);
+		}
+	}
+
+	return VMOps::NewValidator(frame, name.GetValue(), targetTypes, m_Expression, m_DebugInfo);
+}
+
 ExpressionResult ReturnExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const
 {
 	ExpressionResult operand = m_Operand->Evaluate(frame);

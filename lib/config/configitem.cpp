@@ -21,6 +21,7 @@
 #include "config/configcompilercontext.hpp"
 #include "config/applyrule.hpp"
 #include "config/objectrule.hpp"
+#include "config/validatorrule.hpp"
 #include "config/configcompiler.hpp"
 #include "base/application.hpp"
 #include "base/configtype.hpp"
@@ -253,6 +254,7 @@ ConfigObject::Ptr ConfigItem::Commit(bool discard)
 	try {
 		DefaultValidationUtils utils;
 		dobj->Validate(FAConfig, utils);
+		ValidatorRule::EvaluateRules(dobj);
 	} catch (ValidationError& ex) {
 		if (m_IgnoreOnError) {
 			Log(LogNotice, "ConfigObject")
