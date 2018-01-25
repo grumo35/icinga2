@@ -612,25 +612,16 @@ ExpressionResult WhileExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhin
 
 ExpressionResult RequireExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const
 {
-	Value validatorName;
-
-	if (!frame.Locals->Get("validator", &validatorName))
-		BOOST_THROW_EXCEPTION(ScriptError("The 'require' keyword can only be used in validators.", m_DebugInfo));
-
 	ExpressionResult operand = m_Operand->Evaluate(frame);
 	CHECK_RESULT(operand);
 
-	if (!operand.GetValue().ToBool()) {
-		if (validatorName.IsEmpty())
-			BOOST_THROW_EXCEPTION(ValidationError(frame.Self, {}, "User-defined validator failed."));
-		else
-			BOOST_THROW_EXCEPTION(ValidationError(frame.Self, {}, "User-defined validator '" + validatorName + "' failed."));
-	}
+	if (!operand.GetValue().ToBool())
+		BOOST_THROW_EXCEPTION(ValidationError(frame.Self, {}, "User-defined validator failed."));
 
 	return Empty;
 }
 
-ExpressionResult ValidatorExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const
+ExpressionResult MutatorExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const
 {
 	ExpressionResult name = m_Name->Evaluate(frame);
 	CHECK_RESULT(name);
@@ -668,7 +659,7 @@ ExpressionResult ValidatorExpression::DoEvaluate(ScriptFrame& frame, DebugHint *
 		}
 	}
 
-	return VMOps::NewValidator(frame, name.GetValue(), targetTypes, m_Expression, m_DebugInfo);
+	return VMOps::NewMutator(frame, name.GetValue(), targetTypes, m_Expression, m_DebugInfo);
 }
 
 ExpressionResult ReturnExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const

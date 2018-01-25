@@ -672,10 +672,10 @@ protected:
 	ExpressionResult DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const override;
 };
 
-class ValidatorExpression final : public DebuggableExpression
+class MutatorExpression final : public DebuggableExpression
 {
 public:
-	ValidatorExpression(std::unique_ptr<Expression> name, std::unique_ptr<Expression> targets, std::unique_ptr<Expression> expression, const DebugInfo& debugInfo = DebugInfo())
+	MutatorExpression(std::unique_ptr<Expression> name, std::unique_ptr<Expression> targets, std::unique_ptr<Expression> expression, const DebugInfo& debugInfo = DebugInfo())
 		: DebuggableExpression(debugInfo), m_Name(std::move(name)), m_Targets(std::move(targets)), m_Expression(std::move(expression))
 	{ }
 

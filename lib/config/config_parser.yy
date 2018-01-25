@@ -153,7 +153,7 @@ static void MakeRBinaryOp(Expression** result, Expression *left, Expression *rig
 %token T_USING "__using (T_USING)"
 %token T_OBJECT "object (T_OBJECT)"
 %token T_TEMPLATE "template (T_TEMPLATE)"
-%token T_VALIDATOR "validator (T_VALIDATOR)"
+%token T_RULE "rule (T_RULE)"
 %token T_REQUIRE "require (T_REQUIRE)"
 %token T_INCLUDE "include (T_INCLUDE)"
 %token T_INCLUDE_RECURSIVE "include_recursive (T_INCLUDE_RECURSIVE)"
@@ -202,7 +202,7 @@ static void MakeRBinaryOp(Expression** result, Expression *left, Expression *rig
 %type <expr> lterm
 %type <expr> object
 %type <expr> apply
-%type <expr> validator
+%type <expr> mutator
 %type <expr> optional_rterm
 %type <text> target_type_specifier
 %type <boolean> default_specifier
@@ -211,10 +211,9 @@ static void MakeRBinaryOp(Expression** result, Expression *left, Expression *rig
 %type <cvlist> use_specifier_items
 %type <cvitem> use_specifier_item
 %type <num> object_declaration
-%type <expr> optional_validator_target
 
 %right T_FOLLOWS
-%right T_INCLUDE T_INCLUDE_RECURSIVE T_INCLUDE_ZONES T_OBJECT T_TEMPLATE T_VALIDATOR T_REQUIRE T_APPLY T_IMPORT T_ASSIGN T_IGNORE T_WHERE
+%right T_INCLUDE T_INCLUDE_RECURSIVE T_INCLUDE_ZONES T_OBJECT T_TEMPLATE T_RULE T_REQUIRE T_APPLY T_IMPORT T_ASSIGN T_IGNORE T_WHERE
 %right T_FUNCTION T_FOR
 %left T_SET T_SET_ADD T_SET_SUBTRACT T_SET_MULTIPLY T_SET_DIVIDE T_SET_MODULO T_SET_XOR T_SET_BINARY_AND T_SET_BINARY_OR
 %left T_LOGICAL_OR
@@ -609,7 +608,7 @@ lterm: T_LIBRARY rterm
 	{
 		$$ = new UsingExpression(std::unique_ptr<Expression>($2), @$);
 	}
-	| validator
+	| mutator
 	| apply
 	| object
 	| T_FOR '(' identifier T_FOLLOWS identifier T_IN rterm ')'
@@ -1140,19 +1139,9 @@ optional_rterm: /* empty */
 	| rterm
 	;
 
-optional_validator_target: /* empty */
+mutator: T_RULE rterm optional_rterm rterm_scope_require_side_effect
 	{
-		$$ = nullptr;
-	}
-	| T_FOR rterm
-	{
-		$$ = $2;
-	}
-	;
-
-validator: T_VALIDATOR optional_rterm optional_validator_target rterm_scope_require_side_effect
-	{
-		$$ = new ValidatorExpression(std::unique_ptr<Expression>($2), std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($4), @$);
+		$$ = new MutatorExpression(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($2), std::unique_ptr<Expression>($4), @$);
 	}
 	;
 

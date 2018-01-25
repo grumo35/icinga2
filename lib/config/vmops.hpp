@@ -25,7 +25,7 @@
 #include "config/configitembuilder.hpp"
 #include "config/applyrule.hpp"
 #include "config/objectrule.hpp"
-#include "config/validatorrule.hpp"
+#include "config/mutatorrule.hpp"
 #include "base/debuginfo.hpp"
 #include "base/array.hpp"
 #include "base/dictionary.hpp"
@@ -134,10 +134,10 @@ public:
 		return new Function(name, wrapper, argNames);
 	}
 
-	static inline Value NewValidator(ScriptFrame& frame, const String& name, const std::set<Type::Ptr>& targetTypes, const std::shared_ptr<Expression>& expression,
+	static inline Value NewMutator(ScriptFrame& frame, const String& name, const std::set<Type::Ptr>& targetTypes, const std::shared_ptr<Expression>& expression,
 		const DebugInfo& debugInfo = DebugInfo())
 	{
-		ValidatorRule::AddRule(name, targetTypes, expression, debugInfo);
+		MutatorRule::AddRule(name, targetTypes, expression, debugInfo);
 
 		return Empty;
 	}

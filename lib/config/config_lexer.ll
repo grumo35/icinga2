@@ -167,7 +167,7 @@ do {							\
 <INITIAL>{
 object				return T_OBJECT;
 template			return T_TEMPLATE;
-validator			return T_VALIDATOR;
+rule				return T_RULE;
 require				return T_REQUIRE;
 include				return T_INCLUDE;
 include_recursive		return T_INCLUDE_RECURSIVE;

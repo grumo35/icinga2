@@ -17,56 +17,47 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.             *
  ******************************************************************************/
 
-#include "config/applyrule.hpp"
-#include "base/logger.hpp"
-#include <set>
+#ifndef MUTATORRULE_H
+#define MUTATORRULE_H
 
-using namespace icinga;
+#include "config/i2-config.hpp"
+#include "config/expression.hpp"
+#include "base/debuginfo.hpp"
 
-ValidatorRule::RuleVector ValidatorRule::m_Rules;
-
-ValidatorRule::ValidatorRule(String name, std::set<Type::Ptr> targets, std::shared_ptr<Expression> expression,
-	DebugInfo di)
-	: m_Name(std::move(name)), m_TargetTypes(std::move(targets)), m_Expression(std::move(expression)), m_DebugInfo(std::move(di))
-{ }
-
-String ValidatorRule::GetName() const
+namespace icinga
 {
-	return m_Name;
+
+/**
+ * @ingroup config
+ */
+class MutatorRule
+{
+public:
+	typedef std::vector<MutatorRule> RuleVector;
+
+	String GetNamePattern() const;
+	std::set<Type::Ptr> GetTargetTypes() const;
+	std::shared_ptr<Expression> GetExpression() const;
+	DebugInfo GetDebugInfo() const;
+
+	void EvaluateRule(const ConfigObject::Ptr& object, DebugHint *dhint = nullptr) const;
+
+	static void AddRule(const String& namePattern, const std::set<Type::Ptr>& targets, const std::shared_ptr<Expression>& expression,
+		const DebugInfo& di);
+	static void EvaluateRules(const ConfigObject::Ptr& object, DebugHint *dhint = nullptr);
+
+private:
+	String m_NamePattern;
+	std::set<Type::Ptr> m_TargetTypes;
+	std::shared_ptr<Expression> m_Expression;
+	DebugInfo m_DebugInfo;
+
+	static RuleVector m_Rules;
+
+	MutatorRule(String namePattern, std::set<Type::Ptr> targetTypes, std::shared_ptr<Expression> expression,
+		DebugInfo di);
+};
+
 }
 
-std::set<Type::Ptr> ValidatorRule::GetTargetTypes() const
-{
-	return m_TargetTypes;
-}
-
-std::shared_ptr<Expression> ValidatorRule::GetExpression() const
-{
-	return m_Expression;
-}
-
-DebugInfo ValidatorRule::GetDebugInfo() const
-{
-	return m_DebugInfo;
-}
-
-void ValidatorRule::AddRule(const String& name, const std::set<Type::Ptr>& targetTypes, const std::shared_ptr<Expression>& expression,
-	const DebugInfo& di)
-{
-	m_Rules.push_back(ValidatorRule(name, targetTypes, expression, di));
-}
-
-void ValidatorRule::EvaluateRule(const ConfigObject::Ptr& object) const
-{
-	ScriptFrame frame(true);
-	frame.Locals->Set("validator", m_Name);
-	frame.Self = object;
-	m_Expression->Evaluate(frame);
-}
-
-void ValidatorRule::EvaluateRules(const ConfigObject::Ptr& object)
-{
-	for (const ValidatorRule& rule : m_Rules)
-		if (rule.m_TargetTypes.empty() || rule.m_TargetTypes.find(object->GetReflectionType()) != rule.m_TargetTypes.end())
-			rule.EvaluateRule(object);
-}
+#endif /* MUTATORRULE_H */
