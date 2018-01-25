@@ -26,8 +26,9 @@ using namespace icinga;
 MutatorRule::RuleVector MutatorRule::m_Rules;
 
 MutatorRule::MutatorRule(String namePattern, std::set<Type::Ptr> targets, std::shared_ptr<Expression> expression,
-	DebugInfo di)
-	: m_NamePattern(std::move(namePattern)), m_TargetTypes(std::move(targets)), m_Expression(std::move(expression)), m_DebugInfo(std::move(di))
+	DebugInfo di, Dictionary::Ptr scope)
+	: m_NamePattern(std::move(namePattern)), m_TargetTypes(std::move(targets)),
+	m_Expression(std::move(expression)), m_DebugInfo(std::move(di)), m_Scope(std::move(scope))
 { }
 
 String MutatorRule::GetNamePattern() const
@@ -50,15 +51,22 @@ DebugInfo MutatorRule::GetDebugInfo() const
 	return m_DebugInfo;
 }
 
-void MutatorRule::AddRule(const String& namePattern, const std::set<Type::Ptr>& targetTypes, const std::shared_ptr<Expression>& expression,
-	const DebugInfo& di)
+Dictionary::Ptr MutatorRule::GetScope() const
 {
-	m_Rules.push_back(MutatorRule(namePattern, targetTypes, expression, di));
+	return m_Scope;
+}
+
+void MutatorRule::AddRule(const String& namePattern, const std::set<Type::Ptr>& targetTypes, const std::shared_ptr<Expression>& expression,
+	const DebugInfo& di, const Dictionary::Ptr& scope)
+{
+	m_Rules.push_back(MutatorRule(namePattern, targetTypes, expression, di, scope));
 }
 
 void MutatorRule::EvaluateRule(const ConfigObject::Ptr& object, DebugHint *dhint) const
 {
 	ScriptFrame frame(true);
+	if (m_Scope)
+		m_Scope->CopyTo(frame.Locals);
 	frame.Self = object;
 	m_Expression->Evaluate(frame, dhint);
 }

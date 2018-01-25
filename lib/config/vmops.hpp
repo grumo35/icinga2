@@ -135,9 +135,9 @@ public:
 	}
 
 	static inline Value NewMutator(ScriptFrame& frame, const String& name, const std::set<Type::Ptr>& targetTypes, const std::shared_ptr<Expression>& expression,
-		const DebugInfo& debugInfo = DebugInfo())
+		const std::map<String, std::unique_ptr<Expression> >& closedVars, const DebugInfo& debugInfo = DebugInfo())
 	{
-		MutatorRule::AddRule(name, targetTypes, expression, debugInfo);
+		MutatorRule::AddRule(name, targetTypes, expression, debugInfo, EvaluateClosedVars(frame, closedVars));
 
 		return Empty;
 	}

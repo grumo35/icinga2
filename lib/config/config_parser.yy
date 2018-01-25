@@ -1139,9 +1139,9 @@ optional_rterm: /* empty */
 	| rterm
 	;
 
-mutator: T_RULE rterm optional_rterm rterm_scope_require_side_effect
+mutator: T_RULE rterm optional_rterm use_specifier rterm_scope_require_side_effect
 	{
-		$$ = new MutatorExpression(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($2), std::unique_ptr<Expression>($4), @$);
+		$$ = new MutatorExpression(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($2), std::unique_ptr<Expression>($5), std::move(*$4), @$);
 	}
 	;
 

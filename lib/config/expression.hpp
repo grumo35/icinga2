@@ -675,8 +675,10 @@ protected:
 class MutatorExpression final : public DebuggableExpression
 {
 public:
-	MutatorExpression(std::unique_ptr<Expression> name, std::unique_ptr<Expression> targets, std::unique_ptr<Expression> expression, const DebugInfo& debugInfo = DebugInfo())
-		: DebuggableExpression(debugInfo), m_Name(std::move(name)), m_Targets(std::move(targets)), m_Expression(std::move(expression))
+	MutatorExpression(std::unique_ptr<Expression> name, std::unique_ptr<Expression> targets,
+		std::unique_ptr<Expression> expression, std::map<String, std::unique_ptr<Expression> >&& closedVars, const DebugInfo& debugInfo = DebugInfo())
+		: DebuggableExpression(debugInfo), m_Name(std::move(name)), m_Targets(std::move(targets)), m_Expression(std::move(expression)),
+		m_ClosedVars(std::move(closedVars))
 	{ }
 
 protected:
@@ -686,6 +688,7 @@ private:
 	std::unique_ptr<Expression> m_Name;
 	std::unique_ptr<Expression> m_Targets;
 	std::shared_ptr<Expression> m_Expression;
+	std::map<String, std::unique_ptr<Expression> > m_ClosedVars;
 };
 
 class ReturnExpression final : public UnaryExpression

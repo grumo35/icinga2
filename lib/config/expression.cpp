@@ -659,7 +659,7 @@ ExpressionResult MutatorExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dh
 		}
 	}
 
-	return VMOps::NewMutator(frame, name.GetValue(), targetTypes, m_Expression, m_DebugInfo);
+	return VMOps::NewMutator(frame, name.GetValue(), targetTypes, m_Expression, m_ClosedVars, m_DebugInfo);
 }
 
 ExpressionResult ReturnExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dhint) const

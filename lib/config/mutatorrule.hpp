@@ -39,11 +39,12 @@ public:
 	std::set<Type::Ptr> GetTargetTypes() const;
 	std::shared_ptr<Expression> GetExpression() const;
 	DebugInfo GetDebugInfo() const;
+	Dictionary::Ptr GetScope() const;
 
 	void EvaluateRule(const ConfigObject::Ptr& object, DebugHint *dhint = nullptr) const;
 
 	static void AddRule(const String& namePattern, const std::set<Type::Ptr>& targets, const std::shared_ptr<Expression>& expression,
-		const DebugInfo& di);
+		const DebugInfo& di, const Dictionary::Ptr& scope);
 	static void EvaluateRules(const ConfigObject::Ptr& object, DebugHint *dhint = nullptr);
 
 private:
@@ -51,11 +52,12 @@ private:
 	std::set<Type::Ptr> m_TargetTypes;
 	std::shared_ptr<Expression> m_Expression;
 	DebugInfo m_DebugInfo;
+	Dictionary::Ptr m_Scope;
 
 	static RuleVector m_Rules;
 
 	MutatorRule(String namePattern, std::set<Type::Ptr> targetTypes, std::shared_ptr<Expression> expression,
-		DebugInfo di);
+		DebugInfo di, Dictionary::Ptr scope);
 };
 
 }
