@@ -99,6 +99,7 @@ static void MakeRBinaryOp(Expression** result, Expression *left, Expression *rig
 	std::pair<String, std::unique_ptr<Expression> > *cvitem;
 	std::map<String, std::unique_ptr<Expression> > *cvlist;
 	icinga::ScopeSpecifier scope;
+	std::pair<std::unique_ptr<Expression>, std::unique_ptr<Expression> > *mtarget;
 }
 
 %token T_NEWLINE "new-line"
@@ -203,6 +204,7 @@ static void MakeRBinaryOp(Expression** result, Expression *left, Expression *rig
 %type <expr> object
 %type <expr> apply
 %type <expr> mutator
+%type <mtarget> mutator_target
 %type <expr> optional_rterm
 %type <text> target_type_specifier
 %type <boolean> default_specifier
@@ -1139,9 +1141,20 @@ optional_rterm: /* empty */
 	| rterm
 	;
 
-mutator: T_RULE rterm optional_rterm use_specifier rterm_scope_require_side_effect
+mutator_target: /* empty */
 	{
-		$$ = new MutatorExpression(std::unique_ptr<Expression>($3), std::unique_ptr<Expression>($2), std::unique_ptr<Expression>($5), std::move(*$4), @$);
+		$$ = new std::pair<std::unique_ptr<Expression>, std::unique_ptr<Expression>>(MakeLiteral(), MakeLiteral());
+	}
+	| rterm optional_rterm
+	{
+		$$ = new std::pair<std::unique_ptr<Expression>, std::unique_ptr<Expression>>(std::unique_ptr<Expression>($1), std::unique_ptr<Expression>($2));
+	}
+	;
+
+mutator: T_RULE mutator_target use_specifier rterm_scope_require_side_effect
+	{
+		$$ = new MutatorExpression(std::move($2->second), std::move($2->first), std::unique_ptr<Expression>($4), std::move(*$3), @$);
+		delete $2;
 	}
 	;
 

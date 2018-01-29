@@ -628,13 +628,12 @@ ExpressionResult MutatorExpression::DoEvaluate(ScriptFrame& frame, DebugHint *dh
 
 	std::set<Type::Ptr> targetTypes;
 
-	if (m_Targets) {
-		ExpressionResult targets = m_Targets->Evaluate(frame);
-		CHECK_RESULT(targets);
+	ExpressionResult targets = m_Targets->Evaluate(frame);
+	CHECK_RESULT(targets);
 
+	Object::Ptr otargets = targets.GetValue();
 
-		Object::Ptr otargets = targets.GetValue();
-
+	if (otargets) {
 		Array::Ptr arrTargets = dynamic_pointer_cast<Array>(otargets);
 
 		if (arrTargets) {
